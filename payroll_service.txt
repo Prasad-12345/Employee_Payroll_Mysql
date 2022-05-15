@@ -1,0 +1,258 @@
+#UC1
+mysql> create database payroll_service;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| payroll_service    |
+| performance_schema |
+| sys                |
++--------------------+
+5 rows in set (0.00 sec)
+
+mysql> use payroll_service;
+Database changed
+mysql> select database();
++-----------------+
+| database()      |
++-----------------+
+| payroll_service |
++-----------------+
+1 row in set (0.00 sec)
+
+#UC2
+mysql> create table employee_payroll
+    -> (
+    -> id       INT unsigned NOT NULL AUTO_INCREMENT,
+    -> name     VARCHAR(150) NOT NULL,
+    -> salary   Double NOT NULL,
+    -> start    DATE NOT NULL,
+    -> PRIMARY KEY      (id)
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> describe employee_payroll;
++--------+--------------+------+-----+---------+----------------+
+| Field  | Type         | Null | Key | Default | Extra          |
++--------+--------------+------+-----+---------+----------------+
+| id     | int unsigned | NO   | PRI | NULL    | auto_increment |
+| name   | varchar(150) | NO   |     | NULL    |                |
+| salary | double       | NO   |     | NULL    |                |
+| start  | date         | NO   |     | NULL    |                |
++--------+--------------+------+-----+---------+----------------+
+4 rows in set (0.01 sec)
+
+#UC3
+mysql> insert into employee_payroll (name, salary, start) values
+    -> ('Bill', 1000000.00, '2018-01-03'),
+    -> ('Terisa', 2000000.00, '2019-11-13'),
+    -> ('Charlie', 3000000.00, '2020-05-21');
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+#UC4
+mysql> select * from employee_payroll;
++----+---------+---------+------------+
+| id | name    | salary  | start      |
++----+---------+---------+------------+
+|  1 | Bill    | 1000000 | 2018-01-03 |
+|  2 | Terisa  | 2000000 | 2019-11-13 |
+|  3 | Charlie | 3000000 | 2020-05-21 |
++----+---------+---------+------------+
+3 rows in set (0.00 sec)
+
+#UC5
+mysql> select salary from employee_payroll where name = 'Terisa';
++---------+
+| salary  |
++---------+
+| 2000000 |
++---------+
+1 row in set (0.00 sec)
+
+mysql> select salary from employee_payroll where start between cast('2018-01-01' as date) and date(now());
++---------+
+| salary  |
++---------+
+| 1000000 |
+| 2000000 |
+| 3000000 |
++---------+
+3 rows in set (0.00 sec)
+
+#UC6
+mysql> alter table employee_payroll add gender char(1) after name;
+Query OK, 0 rows affected (0.01 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> update employee_payroll set gender = 'F' where name = 'Terisa';
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> update employee_payroll set gender = 'M' where name = 'Bill' or name = 'Charlie';
+Query OK, 2 rows affected (0.00 sec)
+Rows matched: 2  Changed: 2  Warnings: 0
+
+mysql> update employee_payroll set salary = 3000000.00 where name = 'Terisa';
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from employee_payroll;
++----+---------+--------+---------+------------+
+| id | name    | gender | salary  | start      |
++----+---------+--------+---------+------------+
+|  1 | Bill    | M      | 1000000 | 2018-01-03 |
+|  2 | Terisa  | F      | 3000000 | 2019-11-13 |
+|  3 | Charlie | M      | 3000000 | 2020-05-21 |
++----+---------+--------+---------+------------+
+3 rows in set (0.00 sec)
+
+#UC7
+mysql> select gender,sum(salary) from employee_payroll where gender = 'F' group by gender;
++--------+-------------+
+| gender | sum(salary) |
++--------+-------------+
+| F      |     3000000 |
++--------+-------------+
+1 row in set (0.00 sec)
+
+mysql> select gender,sum(salary) from employee_payroll where gender = 'M' group by gender;
++--------+-------------+
+| gender | sum(salary) |
++--------+-------------+
+| M      |     4000000 |
++--------+-------------+
+1 row in set (0.00 sec)
+
+mysql> select gender,avg(salary) from employee_payroll where gender = 'M' group by gender;
++--------+-------------+
+| gender | avg(salary) |
++--------+-------------+
+| M      |     2000000 |
++--------+-------------+
+1 row in set (0.00 sec)
+
+mysql> select gender,name,min(salary) from employee_payroll where gender = 'M' group by gender;
++--------+------+-------------+
+| gender | name | min(salary) |
++--------+------+-------------+
+| M      | Bill |     1000000 |
++--------+------+-------------+
+1 row in set (0.00 sec)
+
+mysql> select gender,max(salary) from employee_payroll where gender = 'M' group by gender;
++--------+-------------+
+| gender | max(salary) |
++--------+-------------+
+| M      |     3000000 |
++--------+-------------+
+1 row in set (0.00 sec)
+
+mysql> select gender, count(gender) from employee_payroll group by gender;
++--------+---------------+
+| gender | count(gender) |
++--------+---------------+
+| M      |             2 |
+| F      |             1 |
++--------+---------------+
+2 rows in set (0.00 sec)
+
+#UC8
+
+mysql> alter table employee_payroll add phone_number varchar(250) after name;
+Query OK, 0 rows affected (0.04 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> alter table employee_payroll add address varchar(250) after phone_Number;
+Query OK, 0 rows affected (0.02 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> alter table employee_payroll add department varchar(250)  not null after address;
+Query OK, 0 rows affected (0.02 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> alter table employee_payroll alter address set default 'TBD';
+Query OK, 0 rows affected (0.01 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> describe employee_payroll;
++--------------+--------------+------+-----+---------+----------------+
+| Field        | Type         | Null | Key | Default | Extra          |
++--------------+--------------+------+-----+---------+----------------+
+| id           | int unsigned | NO   | PRI | NULL    | auto_increment |
+| name         | varchar(150) | NO   |     | NULL    |                |
+| phone_number | varchar(250) | YES  |     | NULL    |                |
+| address      | varchar(250) | YES  |     | TBD     |                |
+| department   | varchar(250) | NO   |     | NULL    |                |
+| gender       | char(1)      | YES  |     | NULL    |                |
+| salary       | double       | NO   |     | NULL    |                |
+| start        | date         | NO   |     | NULL    |                |
++--------------+--------------+------+-----+---------+----------------+
+8 rows in set (0.00 sec)
+
+#UC9
+mysql> alter table employee_payroll rename column salary to basic_pay;
+Query OK, 0 rows affected (0.02 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> alter table employee_payroll add deduction Double not null after basic_pay;
+Query OK, 0 rows affected (0.02 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> alter table employee_payroll add taxable_pay Double not null after deduction;
+Query OK, 0 rows affected (0.01 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> alter table employee_payroll add tax Double not null after taxable_pay;
+Query OK, 0 rows affected (0.02 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> alter table employee_payroll add net_pay Double not null after tax;
+Query OK, 0 rows affected (0.02 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> describe employee_payroll;
++--------------+--------------+------+-----+---------+----------------+
+| Field        | Type         | Null | Key | Default | Extra          |
++--------------+--------------+------+-----+---------+----------------+
+| id           | int unsigned | NO   | PRI | NULL    | auto_increment |
+| name         | varchar(150) | NO   |     | NULL    |                |
+| phone_number | varchar(250) | YES  |     | NULL    |                |
+| address      | varchar(250) | YES  |     | TBD     |                |
+| department   | varchar(250) | NO   |     | NULL    |                |
+| gender       | char(1)      | YES  |     | NULL    |                |
+| basic_pay    | double       | NO   |     | NULL    |                |
+| deduction    | double       | NO   |     | NULL    |                |
+| taxable_pay  | double       | NO   |     | NULL    |                |
+| tax          | double       | NO   |     | NULL    |                |
+| net_pay      | double       | NO   |     | NULL    |                |
+| start        | date         | NO   |     | NULL    |                |
++--------------+--------------+------+-----+---------+----------------+
+12 rows in set (0.00 sec)
+
+#UC10
+mysql> select * from employee_payroll where name = 'Terisa';
++----+--------+--------------+---------+------------+--------+-----------+-----------+-------------+-----+---------+------------+
+| id | name   | phone_number | address | department | gender | basic_pay | deduction | taxable_pay | tax | net_pay | start      |
++----+--------+--------------+---------+------------+--------+-----------+-----------+-------------+-----+---------+------------+
+|  2 | Terisa | NULL         | NULL    |            | F      |   3000000 |         0 |           0 |   0 |       0 | 2019-11-13 |
++----+--------+--------------+---------+------------+--------+-----------+-----------+-------------+-----+---------+------------+
+1 row in set (0.00 sec)
+
+
+mysql> insert into employee_payroll (name, phone_number, department, gender, basic_pay, deduction, taxable_pay, tax, net_pay, start) values
+    -> ('Terisa', '7777777777', 'Marketing', 'F', 3000000.00, 100000.00, 2000000.00, 50000.00, 150000.00, '2018-01-03');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select * from employee_payroll where name = 'Terisa';
++----+--------+--------------+---------+------------+--------+-----------+-----------+-------------+-------+---------+------------+
+| id | name   | phone_number | address | department | gender | basic_pay | deduction | taxable_pay | tax   | net_pay | start      |
++----+--------+--------------+---------+------------+--------+-----------+-----------+-------------+-------+---------+------------+
+|  2 | Terisa | NULL         | NULL    |            | F      |   3000000 |         0 |           0 |     0 |       0 | 2019-11-13 |
+|  4 | Terisa | 7777777777   | TBD     | Marketing  | F      |   3000000 |    100000 |     2000000 | 50000 |  150000 | 2018-01-03 |
++----+--------+--------------+---------+------------+--------+-----------+-----------+-------------+-------+---------+------------+
+2 rows in set (0.00 sec)
